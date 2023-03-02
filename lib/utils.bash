@@ -49,8 +49,7 @@ get_arch() {
   local arch=""
   local arch_check=${ASDF_KLUCTL_OVERWRITE_ARCH:-"$(uname -m)"}
   case "${arch_check}" in
-  x86_64 | amd64) arch="x86_64" ;;
-  i686 | i386 | 386) arch="i386" ;;
+  x86_64 | amd64) arch="amd64" ;;
   aarch64 | arm64) arch="arm64" ;;
   *)
     fail "Arch '${arch_check}' not supported!"
