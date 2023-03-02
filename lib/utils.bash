@@ -2,7 +2,6 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for kluctl.
 GH_REPO="https://github.com/kluctl/kluctl"
 TOOL_NAME="kluctl"
 TOOL_TEST="kluctl version"
@@ -31,18 +30,44 @@ list_github_tags() {
 }
 
 list_all_versions() {
-  # TODO: Adapt this. By default we simply list the tag names from GitHub releases.
-  # Change this function if kluctl has other means of determining installable versions.
   list_github_tags
+}
+
+get_platform() {
+  local platform=""
+
+  platform="$(uname -s)"
+
+  if [ "$platform" != "Linux" ] && [ "$platform" != "Darwin" ]; then
+    fail "Platform '${platform}' not supported!"
+  fi
+
+  printf "%s" "$platform"
+}
+
+get_arch() {
+  local arch=""
+  local arch_check=${ASDF_KLUCTL_OVERWRITE_ARCH:-"$(uname -m)"}
+  case "${arch_check}" in
+  x86_64 | amd64) arch="x86_64" ;;
+  i686 | i386 | 386) arch="i386" ;;
+  aarch64 | arm64) arch="arm64" ;;
+  *)
+    fail "Arch '${arch_check}' not supported!"
+    ;;
+  esac
+
+  printf "%s" "$arch"
 }
 
 download_release() {
   local version filename url
   version="$1"
   filename="$2"
+  arch="$(get_arch)"
+  platform="$(get_platform)"
 
-  # TODO: Adapt the release URL convention for kluctl
-  url="$GH_REPO/archive/v${version}.tar.gz"
+  url=$(curl -s https://api.github.com/repos/$GH_REPO_REF/releases/tags/v${version} | grep -o -E "https://.+?_${platform}_${arch}.tar.gz")
 
   echo "* Downloading $TOOL_NAME release $version..."
   curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
@@ -61,7 +86,6 @@ install_version() {
     mkdir -p "$install_path"
     cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
 
-    # TODO: Assert kluctl executable exists.
     local tool_cmd
     tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
     test -x "$install_path/$tool_cmd" || fail "Expected $install_path/$tool_cmd to be executable."
