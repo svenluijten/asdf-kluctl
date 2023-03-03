@@ -67,7 +67,7 @@ download_release() {
   arch="$(get_arch)"
   platform="$(get_platform)"
 
-  url=$(curl -s https://api.github.com/repos/$GH_REPO_REF/releases/tags/v${version} | grep -o -E "https://.+?_${platform}_${arch}.tar.gz")
+  url=$(curl -s https://api.github.com/repos/$GH_REPO_REF/releases/tags/v${version} | grep -o -E "https://.+?_${platform,,}_${arch}.tar.gz")
 
   echo "* Downloading $TOOL_NAME release $version..."
   curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
