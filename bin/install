@@ -1,19 +1,11 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -euxo pipefail
 
 current_script_path=${BASH_SOURCE[0]}
 plugin_dir=$(dirname "$(dirname "$current_script_path")")
 
-echo "Sourcing utils"
-
 # shellcheck source=../lib/utils.bash
 source "${plugin_dir}/lib/utils.bash"
-
-echo "Sourced utils"
-
-echo "\n type: $ASDF_INSTALL_TYPE"
-echo "\n version: $ASDF_INSTALL_VERSION"
-echo "\n path: $ASDF_INSTALL_PATH"
 
 install_version "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
